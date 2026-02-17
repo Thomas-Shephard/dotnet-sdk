@@ -80,12 +80,7 @@ internal class ToolManifestEditor(IFileSystem fileSystem = null, IDangerousFileD
 
     private void Write(FilePath manifest, SerializableLocalToolsManifest serializableLocalToolsManifest)
     {
-        string json = serializableLocalToolsManifest.ToJson();
-
-        if (serializableLocalToolsManifest.DetectedNewline == "\r\n")
-        {
-            json = json.ReplaceLineEndings("\r\n");
-        }
+        string json = serializableLocalToolsManifest.ToJson(serializableLocalToolsManifest.DetectedNewline);
 
         json += serializableLocalToolsManifest.TrailingNewline;
 
@@ -391,12 +386,11 @@ internal class ToolManifestEditor(IFileSystem fileSystem = null, IDangerousFileD
 
         public string DetectedNewline { get; set; } = "\n";
 
-        public string ToJson()
+        public string ToJson(string newline)
         {
             var arrayBufferWriter = new ArrayBufferWriter<byte>();
-            using (var writer = new Utf8JsonWriter(arrayBufferWriter, new JsonWriterOptions { Indented = true }))
+            using (var writer = new Utf8JsonWriter(arrayBufferWriter, new JsonWriterOptions { Indented = true, NewLine = newline }))
             {
-
                 writer.WriteStartObject();
 
                 if (Version.HasValue)
